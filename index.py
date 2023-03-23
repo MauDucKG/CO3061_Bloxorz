@@ -6,32 +6,6 @@ from dfs import dfs
 from bfs import bfs
 from mcts import mcts
 
-########################################################################################################################
-# Map description:
-# 1 is putable, 0 is abyss, 4 is goal (So far so well)
-# LEVEL_ARRAY = np.array([
-# [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-# [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-# [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-# [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-# [0, 0, 0, 0, 0, 1, 1, 4, 1, 1],
-# [0, 0, 0, 0, 0, 1, 1, 1, 1, 0]
-# ])
-# State: (x0,y0), (x1,y1)
-# Horizontal object: (x, y), (x+1, y) or (x, y), (x, y+1).
-# Vertical object: (x,y),(x,y)
-# Goal state: isStand and map(y,x) = 4
-########################################################################################################################
-# State
-# LEVEL_ARRAY = np.array([
-#     [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-#     [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-#     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#     [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#     [0, 0, 0, 0, 0, 1, 1, 4, 1, 1],
-#     [0, 0, 0, 0, 0, 1, 1, 1, 1, 0]
-# ])
-
 import time
 
 BLACK = (0, 0, 0)
@@ -721,17 +695,14 @@ class ManagedPosition:
 
 def draw_map(screen, node, resolution_width, resolution_height):
     map = node.map
-    rect_size = 0
-    if resolution_width < resolution_height:
-        rect_size = int(resolution_width / 15)
-    else:
-        rect_size = int(resolution_height / 15)
+
     startX = 100
     startY = 200
     x, y = 100, 200
     i1 = 1
     b_w = 160
     color = WHITE
+
     for i in range(len(map)):
         for j in range(len(map[i])):
             if (i == node.data[1] and j == node.data[0]) or (i == node.data[3] and j == node.data[2]):
@@ -1585,6 +1556,7 @@ class SplitObject:
 
 def main():
     levels_array = init_levels()
+    algorithm = "BFS"
     method_choice = int(input("Nhap method (BFS: 0, DFS: 1, MCTS: 3): "))
     is_test = int(input("Test hay xem UI?: (Test: 1, xem UI: 0): "))
     if is_test:
@@ -1594,10 +1566,13 @@ def main():
     done = False
     if method_choice == 0:
         path = bfs(levels_array[level_choice - 1].state)
+        algorithm = "Breadth-First Search"
     elif method_choice == 1:
         path = dfs(levels_array[level_choice - 1].state)
+        algorithm = "Depth-First Search"
     elif method_choice == 3:
         path = mcts(levels_array[level_choice - 1].state)
+        algorithm = "Monte Carlo Tree Search"
     pygame.init()
     pygame.display.set_caption("Bloxorz")
 
@@ -1618,6 +1593,32 @@ def main():
                     if i > 0:
                         i -= 1
         screen.fill(GREEN)
+        pygame.font.init() # you have to call this at the start, 
+                   # if you want to use this module.
+        my_font = pygame.font.SysFont('Comic Sans MS', 30)
+
+        text_surface = my_font.render(algorithm, False, (0, 0, 0))
+        screen.blit(text_surface, (10, 0))
+
+        text_surface = my_font.render('Solution: ' + str(len(path)) + ' steps', False, (0, 0, 0))
+        screen.blit(text_surface, (10, 400))
+
+        if i != 0:
+            text_surface = my_font.render(str(path[i-1].data), False, (128, 128, 128))
+            screen.blit(text_surface, (10, 450))
+
+            text_surface = my_font.render('->', False, (0, 0, 0))
+            screen.blit(text_surface, (210, 450))
+
+        text_surface = my_font.render(str(path[i].data), False, (255, 255, 255))
+        screen.blit(text_surface, (270, 450))
+
+        if i != len(path) - 1:
+            text_surface = my_font.render('->', False, (0, 0, 0))
+            screen.blit(text_surface, (480, 450))
+
+            text_surface = my_font.render(str(path[i+1].data), False, (128, 128, 128))
+            screen.blit(text_surface, (540, 450))
 
         draw_map(screen, path[i], resolution_width, resolution_height)
         pygame.display.flip()

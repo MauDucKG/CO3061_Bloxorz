@@ -106,15 +106,6 @@ def mcts(state):
 #     return float('inf')
 #     return node.wins / node.visits + 1.4 * math.sqrt(math.log(node.prev_node.visits) / node.visits)
 
-# class Node:
-#     def init(self, state, parent=None):
-# self.state = state
-# self.parent = parent
-# self.children = []
-# self.visits = 0
-# self.wins = 0
-
-
 # -----
     # def ucb1(self, exploration_constant=1.4):
     #     if self.visits == 0:

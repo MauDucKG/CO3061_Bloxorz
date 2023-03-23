@@ -4,6 +4,7 @@ import sys
 import pygame
 from dfs import dfs
 from bfs import bfs
+from mcts import mcts
 
 ########################################################################################################################
 # Map description:
@@ -1546,7 +1547,7 @@ def init_levels():
     return levels_array
 
 
-def test(levels_array, is_dfs):
+def test(levels_array, method_choice):
     ######################
     # TEST################
     i = 0
@@ -1554,10 +1555,12 @@ def test(levels_array, is_dfs):
         if level is None:
             continue
         start = time.time()
-        if is_dfs:
+        if method_choice == 1:
             path = dfs(level.state)
-        else:
+        elif method_choice == 0:
             path = bfs(level.state)
+        elif method_choice == 3:
+            path = mcts(level.state)
         data = path[len(path) - 1].data
 
         str_level = str(levels_array.index(level) + 1)
@@ -1582,7 +1585,7 @@ class SplitObject:
 
 def main():
     levels_array = init_levels()
-    method_choice = int(input("Nhap method (BFS: 0, DFS: 1): "))
+    method_choice = int(input("Nhap method (BFS: 0, DFS: 1, MCTS: 3): "))
     is_test = int(input("Test hay xem UI?: (Test: 1, xem UI: 0): "))
     if is_test:
         test(levels_array, method_choice)  #
@@ -1591,8 +1594,10 @@ def main():
     done = False
     if method_choice == 0:
         path = bfs(levels_array[level_choice - 1].state)
-    else:
+    elif method_choice == 1:
         path = dfs(levels_array[level_choice - 1].state)
+    elif method_choice == 3:
+        path = mcts(levels_array[level_choice - 1].state)
     pygame.init()
     pygame.display.set_caption("Bloxorz")
 

@@ -1,6 +1,7 @@
 import time
+from ultis import *
 
-class Node:
+"""class Node:
     def __init__(self, data=(0, 0, 0, 0), prev_node=None, map=[], xo_objects_states={}, is_splitted=False):
         if not ((data[0] < data[2]) or ((data[0] == data[2]) and data[1] < data[3])):
             temp_data = (data[2], data[3], data[0], data[1])
@@ -13,7 +14,7 @@ class Node:
         self.is_splitted = is_splitted
 
     def is_stand(self):
-        return self.data[0] == self.data[2] and self.data[1] == self.data[3]
+        return self.data[0] == self.data[2] and self.data[1] == self.data[3]"""
 # from index import State
 
 def bfs(state):

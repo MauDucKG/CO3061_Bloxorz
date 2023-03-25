@@ -563,8 +563,7 @@ class State:
         
         for p, v in node.xo_objects_states.items():
             if not v:
-                #print("v is false, p is ", p)
-                #print("data: ", node.data)
+                
                 if (p == (node.data[0], node.data[1]) or p == (node.data[2], node.data[3])):
                     return False
 

@@ -49,8 +49,7 @@ def mcts(state):
 
     start = time.time()
     while len(state.states) != 0:
-        # if time.time() - start > 15:
-        #     break
+        
         current_state = state.states.pop(0)
         state.set_player_position(current_state)
         if state.check_goal():
@@ -58,11 +57,8 @@ def mcts(state):
         state.add_valid_state(current_state, -120)
     pointer = current_state
     path = []
-    # Backtracking all the previous moves to reach this goal state
     while pointer:
         path.insert(0, pointer)
         pointer = pointer.prev_node
-    # And print them out
-    # for p in path:
-    #     print(p.data)
+
     return path

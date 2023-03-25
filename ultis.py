@@ -2,10 +2,10 @@ from random import randint, choice
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
+BLUE = (0, 127, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
+YELLOW = (255, 215, 0)
 
 LEVEL1_ARRAY = [
     [1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
@@ -402,21 +402,9 @@ LEVEL33_ARRAY = [
     [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
 ]
 
-
-########################################################################################################################
-# Function map_copy. (Because python's deepcopy is extremely slow so I implement my own deepcopy)
-########################################################################################################################
 def map_copy(map):
     return [list(x) for x in map]
 
-
-########################################################################################################################
-# Data structure to store object's place, as well as its previous place and the action (up, down, left, right) to achieve it
-# data: tuple (place)
-# prev: Node (previous place)
-# action: string (up, down, left, right)
-# Created: SonPhan 23/04/2018
-########################################################################################################################
 class Node:
     def __init__(self, data=(0, 0, 0, 0), prev_node=None, xo_objects_states={}, is_splitted=False):
         if not ((data[0] < data[2]) or (data[0] == data[2] and data[1] < data[3])):
@@ -441,9 +429,6 @@ class Node:
 
     def __str__(self) -> str:
         return "({}, {}, {}, {})".format(self.data[0], self.data[1], self.data[2], self.data[3])
-
-
-########################################################################################################################
 
 class State:
     DFS = -120
@@ -476,11 +461,6 @@ class State:
 
         self.goal = (gx, gy)
 
-    # self.all_moves = self.next_position()
-
-    ####################################################################################################################
-    # Function to find all moves which can be reach from prev_node's move
-    ####################################################################################################################
     def next_position(self, prev_node: Node = None):
         prev_node = self.curNode # i just want to keep the interface, sory :(
         #print(self.x0, self.y0, self.x1, self.y1)
@@ -514,20 +494,10 @@ class State:
             rv.append(self.add_move(rv, (x0, y0, x1, y1 - 1), prev_node))
             rv.append(self.add_move(rv, (x0, y0, x1 + 1, y1), prev_node))
             rv.append(self.add_move(rv, (x0, y0, x1 - 1, y1), prev_node))
-
-        #print("rv before: ")
-        #for n in rv:
-            #print("|   ", n)
-        #print("next node:")
-        # filter valid position
         validNode = []
         for pos in rv:
             if self.is_valid(pos):
                 validNode.append(pos)
-                #print("|   " + str(pos) + ", xo_objects: " + str(pos.xo_objects_states) + ", splitted: ", pos.is_splitted)
-            #else: 
-                #print("|   invalid: " + str(pos) + ", xo_objects: " + str(pos.xo_objects_states) + ", splitted: ", pos.is_splitted)
-
         return validNode
 
     def add_move(self, rv, data, prev_node):
@@ -547,9 +517,6 @@ class State:
             is_splitted = False
         else:
             is_splitted = True
-        
-        #print("|   after check split: ", data)
-        #print("|   xo object states before: ", xo_objects_states)
 
         for xo_object in self.xo_objects:
             if (data[0] == xo_object.position[0] and data[1] == xo_object.position[1]) or (
@@ -558,10 +525,6 @@ class State:
                                         xo_object.type == XOObject.TYPE_X and data[0] == data[2] and data[1] == data[
                                 3]):
                     for m in xo_object.managed_position:
-                        #if xo_object.type == XOObject.TYPE_O:
-                            #print("|   hit O button")
-                        #else: 
-                            #print("|   hit X button")
                         if m.type == ManagedPosition.BOTH:
                             xo_objects_states[(m.x, m.y)] = not xo_objects_states[(m.x, m.y)]
                         elif m.type == ManagedPosition.ONLY_ENABLE:
@@ -573,10 +536,6 @@ class State:
         #print(data)
         return Node(data, prev_node, xo_objects_states, is_splitted)
 
-    ####################################################################################################################
-    # Function to check if the object repeated previous move (which could lead to infinite loop)
-    # Created: SonPhan 23/04/2018
-    ####################################################################################################################
     def notContain(self, node):
         for n in self.visited:
             if n.data[0] == node.data[0] and n.data[1] == node.data[1] and n.data[2] == node.data[2] \
@@ -585,14 +544,7 @@ class State:
                     return False
         return True
 
-    ####################################################################################################################
-    # Function to check valid move
-    ####################################################################################################################
-    # @staticmethod
     def is_valid(self, node: Node):
-        #print("checking ", node, " in map:")
-        #for r in node.map:
-            #print(r)
         height = len(self.board)
         width = len(self.board[0])
         if node.data[0] < 0 or node.data[0] >= width or node.data[1] < 0 or node.data[1] >= height \
@@ -611,8 +563,7 @@ class State:
         
         for p, v in node.xo_objects_states.items():
             if not v:
-                #print("v is false, p is ", p)
-                #print("data: ", node.data)
+                
                 if (p == (node.data[0], node.data[1]) or p == (node.data[2], node.data[3])):
                     return False
 
@@ -696,10 +647,6 @@ class State:
         return abs(p1[0] - p2[0]) + abs(p1[1] + p2[1])
 
     def multiSpaceDistance(self, s1, s2) -> int:
-        # s1, s2 is space decribe by tuple: (0..2, 1..2) equal (v, h)
-        # (3, 0..2) equal v1, v2, v3
-        # (4, 0..2) equal h1, h2, h3
-        # - 1 equal splitted
         if s1 == -1 or s2 == -1:
             return 0
         

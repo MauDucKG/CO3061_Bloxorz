@@ -136,11 +136,8 @@ def monteSearch(envir: State, n = 20):
     # return path
     pointer = curNode.node
     path = []
-    # Backtracking all the previous moves to reach this goal state
     while pointer:
         path.insert(0, pointer)
         pointer = pointer.prev_node
-    # And print them out
-    # for p in path:
-    #     print(p.action)
+
     return path

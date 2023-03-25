@@ -301,6 +301,9 @@ def main():
         pygame.font.init()  
         my_font = pygame.font.SysFont('Comic Sans MS', 30)
 
+        text_surface = my_font.render(algorithm, False, (0, 0, 0))
+        screen.blit(text_surface, (10, 0))
+
         text_surface = my_font.render(
             'Solution: ' + str(len(path)) + ' steps', False, (0, 0, 0))
         screen.blit(text_surface, (10, resolution_height - 150))

@@ -13,7 +13,7 @@ class AStarNode:
     def __eq__(self, anode) -> bool:
         return self.node == anode.node and self.f == anode.f and self.h == anode.h
 
-def AStarSearch(envir: State):
+def AStarSearch(envir: State, a = 1, b = 1, c = 1):
     openlis = [AStarNode(envir.start, 0, sys.maxsize)]
     closelis = []
     minNode = None
@@ -21,18 +21,17 @@ def AStarSearch(envir: State):
     while openlis != []:
 
         # find best candidate node
-        openlis.sort()
-        curNode = openlis.pop(0)
+        curNode = openlis[0]
 
-        """for node in openlis[1:]:
+        for node in openlis[1:]:
             if node < curNode:
-                curNode = node"""
+                curNode = node
         
 
         # add current node to closelis, and remove from openlis
         #print(str(curNode.node))
         closelis.append(curNode)
-        #openlis.remove(curNode)
+        openlis.remove(curNode)
         # check node is goal
         envir.set_player_position(curNode.node)
         if envir.check_goal():
@@ -58,7 +57,7 @@ def AStarSearch(envir: State):
 
                 if not flag:
                     #temp.append(AStarNode(node, curNode.f + 1, envir.heuri(node)))
-                    openlis.append(AStarNode(node, curNode.f + 1, envir.heuri(node)))
+                    openlis.append(AStarNode(node, curNode.f + 1, envir.heuri(node, a, b, c)))
                     #bisect.insort_left(openlis, AStarNode(node, curNode.f + 1, envir.heuri(node)))
                     
 

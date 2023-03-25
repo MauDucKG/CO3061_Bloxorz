@@ -5,67 +5,10 @@ import pygame
 from ultis import *
 from dfs import dfs
 from bfs import bfs
-from mcts import mcts
+from mcts import *
 from astar import AStarNode, AStarSearch
 
 import time
-
-
-
-########################################################################################################################
-# Function to solve by bfs
-########################################################################################################################
-# def bfs(state):
-#     # start = time.time()
-#     current_state = Node
-#     # BFS operation
-#     start = time.time()
-#     while len(state.states) != 0:
-#         # if time.time() - start > 15:
-#         #     break
-#         current_state = state.states.pop(0)
-#         state.set_player_position(current_state)
-#         if state.check_goal():
-#             break
-#         state.add_valid_state(current_state, State.BFS)
-#     pointer = current_state
-#     path = []
-#     # Backtracking all the previous moves to reach this goal state
-#     while pointer:
-#         path.insert(0, pointer)
-#         pointer = pointer.prev_node
-#     # And print them out
-#     # for p in path:
-#     #     print(p.data)
-#     return path
-
-
-########################################################################################################################
-# Function to solve by bfs
-########################################################################################################################
-# def dfs(state):
-#     # start = time.time()
-#     current_state = Node
-#     # BFS operation
-#     start = time.time()
-#     while len(state.states) != 0:
-#         # if time.time() - start > 15:
-#         #     break
-#         current_state = state.states.pop(0)
-#         state.set_player_position(current_state)
-#         if state.check_goal():
-#             break
-#         state.add_valid_state(current_state, State.DFS)
-#     pointer = current_state
-#     path = []
-#     # Backtracking all the previous moves to reach this goal state
-#     while pointer:
-#         path.insert(0, pointer)
-#         pointer = pointer.prev_node
-#     # And print them out
-#     # for p in path:
-#     #     print(p.action)
-#     return path
 
 
 def draw_map(screen, node: Node, state: State, resolution_width, resolution_height):
@@ -372,7 +315,7 @@ def test(levels_array, method_choice):
         elif method_choice == 2:
             path = AStarSearch(level.state)
         elif method_choice == 3:
-            path = mcts(level.state)
+            path = monteSearch(level.state, 10)
 
         end = time.time()
 
@@ -385,11 +328,42 @@ def test(levels_array, method_choice):
             i += 1
         
         print("Level " + str_level + ": " + success +
-              ": " + str(round(end - start, 4)) + "s")
+              ": " + str(round(end - start, 4)) + "s, path length: ", len(path))
     print("So level success: " + str(i))
-    print("Tong so level: " + str(len(list(filter(None.__ne__, levels_array)))))
-    input("Press any key to exit.")
+    print("Tong so level: " + str(len(levels_array)))
+    input("Press enter to exit.")
     return
+
+
+def testAStarSearch():
+    levels_array = init_levels()
+    lev = int(input("Nhap level can test: "))
+    start = int(input("Nhap gia tri bat dau cua tham so: "))
+    end = int(input("Nhap gia tri ket thuc cua tham so: "))
+    step = int(input("Nhap buoc nhay cua tham so: "))
+    minTime = 99999
+    a, b, c = 0, 0, 0
+    for i in range(start, end + 1, step):
+        for j in range(start, end + 1, step):
+            for k in range(start, end + 1, step):
+                startTime = time.time()
+                path = AStarSearch(levels_array[lev-1].state, i, j, k)
+                endTime = time.time()
+
+                data = path[len(path) - 1].data
+                
+
+                success = str(levels_array[lev-1].state.board[data[1]][data[0]]
+                            == 4 and levels_array[lev-1].state.board[data[3]][data[2]] == 4)
+                if success == "True" and endTime - startTime < minTime:
+                    minTime = endTime - startTime
+                    a, b, c = i, j, k
+
+                print("case a = {}, b = {}, c = {}: ".format(i, j, k) + success + ": " + str(round(endTime - startTime, 4)) + "s")
+                print("path length: ", len(path))
+
+    print("====== Best case: a = {}, b = {}, c = {}: finish in {}".format(a, b, c, minTime))
+
 
 
 def main():
@@ -412,7 +386,7 @@ def main():
         path = AStarSearch(levels_array[level_choice - 1].state)
         algorithm = "A* Search"
     elif method_choice == 3:
-        path = mcts(levels_array[level_choice - 1].state)
+        path = monteSearch(levels_array[level_choice - 1].state, 10)
         algorithm = "Monte Carlo Tree Search"
             
     pygame.init()
@@ -467,3 +441,4 @@ def main():
 
 
 main()
+#testAStarSearch()

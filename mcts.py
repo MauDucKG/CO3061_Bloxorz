@@ -1,150 +1,146 @@
-import time
+import time, sys
+from ultis import *
 from math import *
+from random import randint, choice
 
-class Node:
-    def __init__(self, data=(0, 0, 0, 0), prev_node=None, map=[], xo_objects_states={}, is_splitted=False, parent = None):
-        if not ((data[0] < data[2]) or ((data[0] == data[2]) and data[1] < data[3])):
-            temp_data = (data[2], data[3], data[0], data[1])
-            self.data = temp_data
-        else:
-            self.data = data
-        self.prev_node = prev_node
-        self.map = map_copy(map)
-        self.xo_objects_states = dict(xo_objects_states)
-        self.is_splitted = is_splitted
-        self.wins = 0
-        self.visits = 0
-        self.children = []
-        self.parent = parent
+class MCTSnode:
+    def __init__(self, node: Node, f, monte: tuple = (0, 0)):
+        self.node = node
+        self.f = f
+        self.h, self.length = monte
+        
 
-    def UCTSelectChild(self):
-        s = sorted(self.childNodes, key = lambda c: c.wins/c.visits + sqrt(2*log(self.visits)/c.visits))[-1]
-        return s
-
-    def expand(self):
-        actions = self.state.get_actions()
-        for action in actions:
-            new_state = self.state.execute_action(action)
-            child = Node(new_state, parent=self)
-            self.children.append(child)
-
-    def simulate(self):
-        current_state = self.state
-        while not current_state.is_terminal():
-            action = random.choice(current_state.get_actions())
-            current_state = current_state.execute_action(action)
-        return current_state.get_winner()
-
-    def backpropagate(self, result):
-        self.visits += 1
-        self.wins += result
-        if self.parent:
-            self.parent.backpropagate(result)
-
-def mcts(state):
-    current_state = Node
+    def __lt__(self, mnode):
+        return (self.h + self.f + self.length) < (mnode.h + mnode.f + mnode.length)
     
-    start = time.time()
-    while len(state.states) != 0:
-        # if time.time() - start > 15:
-        #     break
-        current_state = state.states.pop(0)
-        state.set_player_position(current_state)
-        if state.check_goal():
+    def __eq__(self, anode) -> bool:
+        return self.node == anode.node and self.f == anode.f and self.h == anode.h and self.length == anode.length
+    
+# monte carlo function
+def playRandom(envir: State, mnode: MCTSnode, visited, maxstep = 10):
+    curNode = mnode
+    closelis = []
+    step = 0
+
+    for i in range(maxstep):
+        #print("|   step ", step, ": ", curNode.node)
+        closelis += [curNode.node]
+        envir.set_player_position(curNode.node)
+        if envir.check_goal():
+            return (0, step)
+        
+        step += 1
+        nextNodes = envir.next_position(curNode.node)
+        validNode = []
+
+        #temp = []
+        for node in nextNodes:
+            # if node not in open list, add node to list
+            if node in closelis:
+                continue
+            
+            flag = True
+            for mnode in visited:
+                if mnode.node == node:
+                    if curNode.f + 1 >= mnode.f:
+                        flag = False
+                    break
+            if flag: validNode.append(node)
+
+            
+        
+        if validNode == []:
+            return (100, maxstep)
+        
+        
+        curNode = MCTSnode(choice(validNode), curNode.f + 1)
+
+    return (envir.heuri(curNode.node), step)
+            
+        
+def monteCarlo(envir: State, node: Node, f, visited, n = 20) -> MCTSnode:
+    #print("monte node: ", node)
+    #print("|   visited list:")
+    #for mnode in visited:
+        #print("    |   ", mnode.node)
+    rnode = MCTSnode(node, f)
+    sumHeuri = 0
+    sumStep = 0
+    #curNode = node
+    for i in range(n):
+        #print("- random ", i, ":")
+        heuri, step = playRandom(envir, rnode, visited)
+        sumHeuri += heuri
+        sumStep += step
+        #nextNode = 
+    rnode.h = sumHeuri/n
+    rnode.length = sumStep/n
+    return rnode
+
+
+def monteSearch(envir: State, n = 20):
+    openlis = [MCTSnode(envir.start, sys.maxsize)]
+    closelis = []
+
+    while openlis != []:
+
+        # find best candidate node
+        curNode = openlis[0]
+
+        for node in openlis[1:]:
+            if node < curNode:
+                curNode = node
+        
+
+        # add current node to closelis, and remove from openlis
+        #print(str(curNode.node))
+        closelis.append(curNode)
+        openlis.remove(curNode)
+        # check node is goal
+        envir.set_player_position(curNode.node)
+        if envir.check_goal():
             break
-        state.add_valid_state(current_state, -120)
-    pointer = current_state
+
+        # add next node
+        nextNodes = envir.next_position(curNode.node)
+        #temp = []
+        for node in nextNodes:
+            # if node not in open list, add node to list
+            flag = False
+            for mnode in closelis:
+                if mnode.node == node:
+                    flag = True
+                    break
+            if not flag:
+                for mnode in openlis:
+                    if mnode.node == node:
+                        flag = True
+                        if curNode.f + 1 < mnode.f:
+                            mnode.f = curNode.f + 1
+                        break
+
+                if not flag:
+                    #temp.append(AStarNode(node, curNode.f + 1, envir.heuri(node)))
+                    openlis.append(monteCarlo(envir, node, curNode.f + 1, openlis + closelis, n))
+                    #bisect.insort_left(openlis, AStarNode(node, curNode.f + 1, envir.heuri(node)))
+                    
+
+        #print("add to open list: ")
+        #for anode in temp:
+            #print("|   ", anode.node)
+        #print("open list: ")
+        #for anode in openlis:
+            #print("|   ", anode.node)
+                
+
+    # return path
+    pointer = curNode.node
     path = []
     # Backtracking all the previous moves to reach this goal state
     while pointer:
         path.insert(0, pointer)
         pointer = pointer.prev_node
     # And print them out
-    for p in path:
-        print(p.data)
+    # for p in path:
+    #     print(p.action)
     return path
-# def monte_carlo_tree_search(state, itermax):
-#     root = Node()
-#     for i in range(itermax):
-#         node = root
-#     # Selection
-#     while node.children:
-#         node = max(node.children, key=uct)
-#     # Expansion
-#     if not node.visits:
-#     # if node is not yet visited, randomly select a child and add it to the tree
-#         selected_state = random.choice(state.states)
-#         new_node = Node(selected_state, node)
-#         node.children.append(new_node)
-#         node = new_node
-#     # Simulation
-#     simulation_state = node.data
-#     # do random actions to reach a terminal state
-#     while not state.check_goal():
-#     random_action = random.choice(state.get_valid_moves(simulation_state))
-#     simulation_state = state.get_next_state(simulation_state, random_action)
-#     # Backpropagation
-#     while node:
-#     node.visits += 1
-#     if state.check_goal(simulation_state):
-#     node.wins += 1
-#     node = node.prev_node
-#     # return the best child of the root node
-#     best_child = max(root.children, key=lambda c: c.visits)
-#     path = []
-#     pointer = best_child
-#     while pointer:
-#     path.insert(0, pointer)
-#     pointer = pointer.prev_node
-#     # And print them out
-#     for p in path:
-#     print(p.data)
-#     return path
-
-#     def uct(node):
-#     if not node.visits:
-#     return float('inf')
-#     return node.wins / node.visits + 1.4 * math.sqrt(math.log(node.prev_node.visits) / node.visits)
-
-# -----
-    # def ucb1(self, exploration_constant=1.4):
-    #     if self.visits == 0:
-    #         return float('inf')
-    #     return self.wins / self.visits + exploration_constant * math.sqrt(math.log(self.parent.visits) / self.visits)
-
-    # def expand(self):
-    #     actions = self.state.get_actions()
-    #     for action in actions:
-    #         new_state = self.state.execute_action(action)
-    #         child = Node(new_state, parent=self)
-    #         self.children.append(child)
-
-    # def simulate(self):
-    #     current_state = self.state
-    #     while not current_state.is_terminal():
-    #         action = random.choice(current_state.get_actions())
-    #         current_state = current_state.execute_action(action)
-    #     return current_state.get_winner()
-
-    # def backpropagate(self, result):
-    #     self.visits += 1
-    #     self.wins += result
-    #     if self.parent:
-    #         self.parent.backpropagate(result)
-    # def mcts(state, budget):
-    #     root = Node(state)
-    #     for _ in range(budget):
-    #     current = root
-    #     # Selection
-    #     while current.children:
-    #     current = max(current.children, key=lambda x: x.ucb1())
-    #     # Expansion
-    #     if current.visits > 0:
-    #     current.expand()
-    #     current = random.choice(current.children)
-    #     # Simulation
-    #     result = current.simulate()
-    #     # Backpropagation
-    #     current.backpropagate(result)
-    #     # Choose best action
-    #     return max(root.children, key=lambda x: x.visits).state.get_best_action()

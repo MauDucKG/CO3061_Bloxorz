@@ -1,4 +1,4 @@
-
+from random import randint, choice
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -738,10 +738,11 @@ class State:
         else:
             return (node[0]%3, node[1]%3)
 
-    def heuri(self, node: Node):
+    def heuri(self, node: Node, a = 1, b = 1, c = 1):
+
         changeMap = 0
         for val in node.xo_objects_states.values():
-            if val: changeMap += 1
+            if not val: changeMap += 1
         msdis = self.multiSpaceDistance(self.findSpace(node), self.findSpace(self.goal))
         dis = -1
         if node.is_splitted:
@@ -751,7 +752,9 @@ class State:
         else: 
             dis = self.manhattanDis((node.data[0], node.data[1]), self.goal)
 
-        return dis + 2*msdis + changeMap
+        return dis + 2*msdis + 3*changeMap
+
+    
 
     # gen map from a node
     def getMap(self, node: Node):

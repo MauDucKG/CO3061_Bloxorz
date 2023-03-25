@@ -37,6 +37,6 @@ def dfs(state):
         path.insert(0, pointer)
         pointer = pointer.prev_node
     # And print them out
-    for p in path:
-        print(p.data)
+    """for p in path:
+        print(p.data)"""
     return path

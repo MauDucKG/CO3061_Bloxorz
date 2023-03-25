@@ -6,66 +6,9 @@ from ultis import *
 from dfs import dfs
 from bfs import bfs
 from mcts import mcts
-from astar import AStarNode, AStarSearch
+from astar import AStarSearch
 
 import time
-
-
-
-########################################################################################################################
-# Function to solve by bfs
-########################################################################################################################
-# def bfs(state):
-#     # start = time.time()
-#     current_state = Node
-#     # BFS operation
-#     start = time.time()
-#     while len(state.states) != 0:
-#         # if time.time() - start > 15:
-#         #     break
-#         current_state = state.states.pop(0)
-#         state.set_player_position(current_state)
-#         if state.check_goal():
-#             break
-#         state.add_valid_state(current_state, State.BFS)
-#     pointer = current_state
-#     path = []
-#     # Backtracking all the previous moves to reach this goal state
-#     while pointer:
-#         path.insert(0, pointer)
-#         pointer = pointer.prev_node
-#     # And print them out
-#     # for p in path:
-#     #     print(p.data)
-#     return path
-
-
-########################################################################################################################
-# Function to solve by bfs
-########################################################################################################################
-# def dfs(state):
-#     # start = time.time()
-#     current_state = Node
-#     # BFS operation
-#     start = time.time()
-#     while len(state.states) != 0:
-#         # if time.time() - start > 15:
-#         #     break
-#         current_state = state.states.pop(0)
-#         state.set_player_position(current_state)
-#         if state.check_goal():
-#             break
-#         state.add_valid_state(current_state, State.DFS)
-#     pointer = current_state
-#     path = []
-#     # Backtracking all the previous moves to reach this goal state
-#     while pointer:
-#         path.insert(0, pointer)
-#         pointer = pointer.prev_node
-#     # And print them out
-#     # for p in path:
-#     #     print(p.action)
-#     return path
 
 
 def draw_map(screen, node: Node, state: State, resolution_width, resolution_height):
@@ -84,8 +27,8 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                 b_w /= 2
 
     if not ((node.data[0] < node.data[2]) or ((node.data[0] == node.data[2]) and node.data[1] > node.data[3])):
-            temp_data = (node.data[2], node.data[3], node.data[0], node.data[1])
-            node.data = temp_data
+        temp_data = (node.data[2], node.data[3], node.data[0], node.data[1])
+        node.data = temp_data
 
     for i in range(len(map)):
         for j in range(len(map[i])):
@@ -98,17 +41,26 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
-                # pygame.draw.line(display,(45,56,65),(x-10,y),(x-10,y+10))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang+w, y-10+h), (x+ang+w, y+h))
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang, y+h), (x+ang, y+h+10))
-
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-                # pygame.draw.polygon(display,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-                # pygame.draw.polygon(display,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
+                                 (x+ang, y+h), (x+ang, y+h+10))
+                pygame.draw.polygon(screen, (45, 56, 65), [
+                                    (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
+                pygame.draw.polygon(screen, (0, 0, 0), [
+                                    (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)], 1)
+            if map[i][j] == 4:
+                color = YELLOW
+                w, h = 40, 30
+                ang = 15
+                pygame.draw.polygon(screen, color, [
+                                    (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)])
+                pygame.draw.polygon(screen, (0, 0, 0), [
+                                    (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
+                pygame.draw.line(screen, (45, 56, 65),
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
+                pygame.draw.line(screen, (45, 56, 65),
+                                 (x+ang, y+h), (x+ang, y+h+10))
                 pygame.draw.polygon(screen, (45, 56, 65), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
@@ -121,21 +73,17 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
-                # pygame.draw.line(display,(45,56,65),(x-10,y),(x-10,y+10))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang+w, y-10+h), (x+ang+w, y+h))
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang, y+h), (x+ang, y+h+10))
+                                 (x+ang, y+h), (x+ang, y+h+10))
 
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-                # pygame.draw.polygon(display,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-                # pygame.draw.polygon(display,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
                 pygame.draw.polygon(screen, (45, 56, 65), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)], 1)
+                pygame.draw.line(screen, BLACK, (x-10, y), (x+ang+w, y-10+h), 3)
+                pygame.draw.line(screen, BLACK, (x-10+w, y-10), (x+ang, y+h), 3)
             elif map[i][j] == 2:
                 color = RED
                 w, h = 40, 30
@@ -144,23 +92,18 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
-                # pygame.draw.line(display,(45,56,65),(x-10,y),(x-10,y+10))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang+w, y-10+h), (x+ang+w, y+h))
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang, y+h), (x+ang, y+h+10))
-
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-                # pygame.draw.polygon(display,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-                # pygame.draw.polygon(display,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
+                                 (x+ang, y+h), (x+ang, y+h+10))
                 pygame.draw.polygon(screen, (45, 56, 65), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)], 1)
+                pygame.draw.line(screen, WHITE, (x-10, y), (x+ang+w, y-10+h), 3)
+                pygame.draw.line(screen, WHITE, (x-10+w, y-10), (x+ang, y+h), 3)
             elif map[i][j] == 5:
-                color = YELLOW
+                color = WHITE
                 w, h = 40, 30
                 ang = 15
                 pygame.draw.polygon(screen, color, [
@@ -169,15 +112,9 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
                 # pygame.draw.line(display,(45,56,65),(x-10,y),(x-10,y+10))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang+w, y-10+h), (x+ang+w, y+h))
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang, y+h), (x+ang, y+h+10))
-
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-                # pygame.draw.polygon(display,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-                # pygame.draw.polygon(display,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
+                                 (x+ang, y+h), (x+ang, y+h+10))
                 pygame.draw.polygon(screen, (45, 56, 65), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
@@ -190,17 +127,11 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
                                     (x-10, y), (x-10+w, y-10), (x+ang+w, y-10+h), (x+ang, y+h)], 1)
-                # pygame.draw.line(display,(45,56,65),(x-10,y),(x-10,y+10))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang+w, y-10+h), (x+ang+w, y+h))
+                                 (x+ang+w, y-10+h), (x+ang+w, y+h))
                 pygame.draw.line(screen, (45, 56, 65),
-                                    (x+ang, y+h), (x+ang, y+h+10))
+                                 (x+ang, y+h), (x+ang, y+h+10))
 
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(display,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-                # pygame.draw.polygon(display,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-                # pygame.draw.polygon(display,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
                 pygame.draw.polygon(screen, (45, 56, 65), [
                                     (x+ang+w, y-10+h), (x+ang, y+h), (x+ang, y+h+10), (x+ang+w, y+h)])
                 pygame.draw.polygon(screen, (0, 0, 0), [
@@ -219,14 +150,6 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
             if (i == node.data[3] and j == node.data[2]):
                 w, h = 40, 30
                 ang = 15
-                # b_w = 40
-                # pygame.draw.polygon(screen,(199,208,207),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)])
-                # pygame.draw.polygon(screen,(0,0,0),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)],1)
-
-                # pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-                # pygame.draw.polygon(screen,BLUE,[(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang+w,y-10+h-b_w),(x-10+w,y-10-b_w)])
-                # pygame.draw.polygon(screen,(0,0,0),[(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang+w,y-10+h-b_w),(x-10+w,y-10-b_w)],1)
 
                 pygame.draw.polygon(
                     screen, BLUE, [(x-10+w, y-10), (x-10, y), (x-10, y-b_w), (x-10+w, y-10-b_w)])
@@ -267,14 +190,6 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
             if (i == node.data[1] and j == node.data[0]):
                 w, h = 40, 30
                 ang = 15
-                # b_w = 40
-                # pygame.draw.polygon(screen,(199,208,207),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)])
-                # pygame.draw.polygon(screen,(0,0,0),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)],1)
-
-                # pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-                # pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-                # pygame.draw.polygon(screen,BLUE,[(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang+w,y-10+h-b_w),(x-10+w,y-10-b_w)])
-                # pygame.draw.polygon(screen,(0,0,0),[(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang+w,y-10+h-b_w),(x-10+w,y-10-b_w)],1)
 
                 pygame.draw.polygon(
                     screen, BLUE, [(x-10+w, y-10), (x-10, y), (x-10, y-b_w), (x-10+w, y-10-b_w)])
@@ -305,61 +220,8 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
         x = startX+(i1*25)
         y = startY+(i1*30)
         i1 += 1
-    # for i in range(len(map)):
-    #     for j in range(len(map[i])):
-    #         x,y,w,h = 40 * j,40 * i,40,30
-    #         ang = 15
-    #         pygame.draw.polygon(screen,(199,208,207),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)])
-    #         pygame.draw.polygon(screen,(0,0,0),[(x-10,y),(x-10+w,y-10),(x+ang+w,y-10+h),(x+ang,y+h)],1)
-    #         pygame.draw.line(screen,(45,56,65),(x-10,y),(x-10,y+10))
-    #         pygame.draw.line(screen,(45,56,65),(x+ang+w,y-10+h),(x+ang+w,y+h))
-    #         pygame.draw.line(screen,(45,56,65),(x+ang,y+h),(x+ang,y+h+10))
-
-    #         #pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x+ang+w,y+h))
-    #         #pygame.draw.line(screen,(45,56,65),(x+ang,y+h+10),(x-10,y+10))
-
-    #         pygame.draw.polygon(screen,(45,56,65),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)])
-    #         pygame.draw.polygon(screen,(0,0,0),[(x-10,y),(x+ang,y+h),(x+ang,y+h+10),(x-10,y+10)],1)
-    #         pygame.draw.polygon(screen,(45,56,65),[(x+ang+w,y-10+h),(x+ang,y+h),(x+ang,y+h+10),(x+ang+w,y+h)])
-    #         pygame.draw.polygon(screen,(0,0,0),[(x+ang+w,y-10+h),(x+ang,y+h),(x+ang,y+h+10),(x+ang+w,y+h)],1)
-        # rect_points = [(30 + rect_size * j, 30 + rect_size * i),
-        #                (30 + rect_size * (j + 1), 30 + rect_size * i),
-        #                (30 + rect_size * (j + 1) + radio, 30 + rect_size * (i + 1)),
-        #                (30 + rect_size * j + radio, 30 + rect_size * (i + 1))]
-        # color = None
-        # if (i == node.data[1] and j == node.data[0]) or (i == node.data[3] and j == node.data[2]):
-        #     color = BLUE
-        # elif map[i][j] == 1:
-        #     color = WHITE
-        # elif map[i][j] == -2:
-        #     color = WHITE
-        # elif map[i][j] == 2:
-        #     color = WHITE
-        # elif map[i][j] == 5:
-        #     color = YELLOW
-        # elif map[i][j] == 6:
-        #     color = WHITE
-
-        # if color is not None:
-        #     pygame.draw.polygon(screen, color, rect_points, 0)
-        #     pygame.draw.polygon(screen, BLACK, rect_points, 1)
-
-        # if map[i][j] == -2:
-        #     pygame.draw.circle(screen, RED,
-        #                        [30 + rect_size * j + int(rect_size / 2),
-        #                         30 + rect_size * i + int(rect_size / 2)],
-        #                        int(rect_size / 2))
-        # elif map[i][j] == 2:
-        #     pygame.draw.aaline(screen, RED, rect_points[0], rect_points[2], 1)
-        #     pygame.draw.aaline(screen, RED, rect_points[1], rect_points[3], 1)
-        # elif map[i][j] == 6:
-        #     pygame.draw.aaline(screen, BLACK, [30 + rect_size * j + int(rect_size / 2), 30 + rect_size * i],
-        #                        [30 + rect_size * j + int(rect_size / 2), 30 + rect_size * i + rect_size])
-
 
 def test(levels_array, method_choice):
-    ######################
-    # TEST################
     i = 0
     for level in levels_array:
         if level is None:
@@ -383,11 +245,11 @@ def test(levels_array, method_choice):
                       == 4 and level.state.board[data[3]][data[2]] == 4)
         if success == "True":
             i += 1
-        
+
         print("Level " + str_level + ": " + success +
               ": " + str(round(end - start, 4)) + "s")
     print("So level success: " + str(i))
-    print("Tong so level: " + str(len(list(filter(None.__ne__, levels_array)))))
+    print("Tong so level: " + str(len(levels_array)))
     input("Press any key to exit.")
     return
 
@@ -395,7 +257,8 @@ def test(levels_array, method_choice):
 def main():
     levels_array = init_levels()
     algorithm = "BFS"
-    method_choice = int(input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3): "))
+    method_choice = int(
+        input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3): "))
     is_test = int(input("Test hay xem UI?: (Test: 1, xem UI: 0): "))
     if is_test:
         test(levels_array, method_choice)  #
@@ -414,19 +277,19 @@ def main():
     elif method_choice == 3:
         path = mcts(levels_array[level_choice - 1].state)
         algorithm = "Monte Carlo Tree Search"
-            
+
     pygame.init()
     pygame.display.set_caption("Bloxorz")
 
-    resolution_height = pygame.display.Info().current_h / 1.5
-    resolution_width = pygame.display.Info().current_w / 1.5
+    resolution_height = pygame.display.Info().current_h/1.1
+    resolution_width = pygame.display.Info().current_w/1.1
 
     screen = pygame.display.set_mode((resolution_width, resolution_height))
     i = 0
     while not done:
-        for event in pygame.event.get():  # User did something
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
+                done = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     if i < len(path) - 1:
@@ -435,34 +298,35 @@ def main():
                     if i > 0:
                         i -= 1
         screen.fill(GREEN)
-        pygame.font.init() # you have to call this at the start, 
-                   # if you want to use this module.
+        pygame.font.init()  
         my_font = pygame.font.SysFont('Comic Sans MS', 30)
 
-        text_surface = my_font.render(algorithm, False, (0, 0, 0))
-        screen.blit(text_surface, (10, 0))
-
-        text_surface = my_font.render('Solution: ' + str(len(path)) + ' steps', False, (0, 0, 0))
-        screen.blit(text_surface, (10, 400))
+        text_surface = my_font.render(
+            'Solution: ' + str(len(path)) + ' steps', False, (0, 0, 0))
+        screen.blit(text_surface, (10, resolution_height - 150))
 
         if i != 0:
-            text_surface = my_font.render(str(path[i-1].data), False, (128, 128, 128))
-            screen.blit(text_surface, (10, 450))
+            text_surface = my_font.render(
+                str(path[i-1].data), False, (128, 128, 128))
+            screen.blit(text_surface, (10, resolution_height - 100))
 
             text_surface = my_font.render('->', False, (0, 0, 0))
-            screen.blit(text_surface, (210, 450))
+            screen.blit(text_surface, (210, resolution_height - 100))
 
-        text_surface = my_font.render(str(path[i].data), False, (255, 255, 255))
-        screen.blit(text_surface, (270, 450))
+        text_surface = my_font.render(
+            str(path[i].data), False, (255, 255, 255))
+        screen.blit(text_surface, (270, resolution_height - 100))
 
         if i != len(path) - 1:
             text_surface = my_font.render('->', False, (0, 0, 0))
-            screen.blit(text_surface, (480, 450))
+            screen.blit(text_surface, (480, resolution_height - 100))
 
-            text_surface = my_font.render(str(path[i+1].data), False, (128, 128, 128))
-            screen.blit(text_surface, (540, 450))
+            text_surface = my_font.render(
+                str(path[i+1].data), False, (128, 128, 128))
+            screen.blit(text_surface, (540, resolution_height - 100))
 
-        draw_map(screen, path[i], levels_array[level_choice - 1].state, resolution_width, resolution_height)
+        draw_map(screen, path[i], levels_array[level_choice -
+                 1].state, resolution_width, resolution_height)
         pygame.display.flip()
 
 

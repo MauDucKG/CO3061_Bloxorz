@@ -58,7 +58,7 @@ def playRandom(envir: State, mnode: MCTSnode, visited, maxstep = 10):
     return (envir.heuri(curNode.node), step)
             
         
-def monteCarlo(envir: State, node: Node, f, visited, n = 20) -> MCTSnode:
+def monteCarlo(envir: State, node: Node, f, visited, n = 5) -> MCTSnode:
     #print("monte node: ", node)
     #print("|   visited list:")
     #for mnode in visited:
@@ -78,13 +78,15 @@ def monteCarlo(envir: State, node: Node, f, visited, n = 20) -> MCTSnode:
     return rnode
 
 
-def monteSearch(envir: State, n = 20):
+def monteSearch(envir: State, n = 5):
     openlis = [MCTSnode(envir.start, sys.maxsize)]
     closelis = []
+    nNode = 0
 
     while openlis != []:
 
         # find best candidate node
+        nNode += 1 
         curNode = openlis[0]
 
         for node in openlis[1:]:
@@ -140,4 +142,4 @@ def monteSearch(envir: State, n = 20):
         path.insert(0, pointer)
         pointer = pointer.prev_node
 
-    return path
+    return path, nNode, len(openlis) + len(closelis)

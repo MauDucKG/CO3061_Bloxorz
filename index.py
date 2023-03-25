@@ -222,43 +222,56 @@ def draw_map(screen, node: Node, state: State, resolution_width, resolution_heig
         i1 += 1
 
 def test(levels_array, method_choice):
-    i = 0
-    for level in levels_array:
-        if level is None:
-            continue
-        start = time.time()
-        if method_choice == 1:
-            path = dfs(level.state)
-            memory = memory_usage(level.state)
-            print("Memory usage:", memory, "B")
-        elif method_choice == 0:
-            path = bfs(level.state)
-            memory = memory_usage(level.state)
-            print("Memory usage:", memory, "B")
+    testAlgo = int(input("Test level: 0, test algorithm: 1? "))
+    if testAlgo:
+        if method_choice == 0 or method_choice == 1:
+            print("DFS and BFS have no variant")
         elif method_choice == 2:
-            path = AStarSearch(level.state)
-            memory = memory_usage(level.state)
-            print("Memory usage:", memory, "B")
+            testAStarSearch(levels_array)
         elif method_choice == 3:
-            path = (level.state)
-            memory = memory_usage(level.state)
-            print("Memory usage:", memory, "B")
+            testMonteCarlo(levels_array)
+    else:
+        i = 0
+        for level in levels_array:
+            if level is None:
+                continue
 
-        end = time.time()
+            path = []
+            nNode = 0
+            mem = 0
 
-        data = path[len(path) - 1].data
+            start = time.time()
+            if method_choice == 1:
+                path, nNode, mem = dfs(level.state)
+                #memory = memory_usage(level.state)
+                #print("Memory usage:", memory, "B")
+            elif method_choice == 0:
+                path, nNode, mem = bfs(level.state)
+                #memory = memory_usage(level.state)
+                #print("Memory usage:", memory, "B")
+            elif method_choice == 2:
+                path, nNode, mem = AStarSearch(level.state)
+                #memory = memory_usage(level.state)
+                #print("Memory usage:", memory, "B")
+            elif method_choice == 3:
+                path, nNode, mem = monteSearch(level.state)
+                #memory = memory_usage(level.state)
+                #print("Memory usage:", memory, "B")
 
-        str_level = str(levels_array.index(level) + 1)
-        success = str(level.state.board[data[1]][data[0]]
-                      == 4 and level.state.board[data[3]][data[2]] == 4)
-        if success == "True":
-            i += 1
-        
-        print("Level " + str_level + ": " + success +
-              ": " + str(round(end - start, 4)) + "s, path length: ", len(path))
-    print("So level success: " + str(i))
-    print("Tong so level: " + str(len(levels_array)))
-    input("Press enter to exit.")
+            end = time.time()
+
+            data = path[len(path) - 1].data
+
+            str_level = str(levels_array.index(level) + 1)
+            success = str(level.state.board[data[1]][data[0]]
+                        == 4 and level.state.board[data[3]][data[2]] == 4)
+            if success == "True":
+                i += 1
+            
+            print("Level " + str_level + ": " + success + ", path length: ", len(path), ", So node da tim kiem: ", nNode, ", Time: ", round(end - start, 4), "s, Memory Usage: " , mem)
+        print("So level success: " + str(i))
+        print("Tong so level: " + str(len(levels_array)))
+        input("Press enter to exit.")
     return
 
 def memory_usage(state):
@@ -270,8 +283,7 @@ def memory_usage(state):
         memory += size
     return memory
 
-def testAStarSearch():
-    levels_array = init_levels()
+def testAStarSearch(levels_array):
     lev = int(input("Nhap level can test: "))
     start = int(input("Nhap gia tri bat dau cua tham so: "))
     end = int(input("Nhap gia tri ket thuc cua tham so: "))
@@ -282,7 +294,7 @@ def testAStarSearch():
         for j in range(start, end + 1, step):
             for k in range(start, end + 1, step):
                 startTime = time.time()
-                path = AStarSearch(levels_array[lev-1].state, i, j, k)
+                path, nNode = AStarSearch(levels_array[lev-1].state, i, j, k)
                 endTime = time.time()
 
                 data = path[len(path) - 1].data
@@ -295,10 +307,36 @@ def testAStarSearch():
                     a, b, c = i, j, k
 
                 print("case a = {}, b = {}, c = {}: ".format(i, j, k) + success + ": " + str(round(endTime - startTime, 4)) + "s")
-                print("path length: ", len(path))
+                print("so node da tim kiem: ", nNode, ", path length: ", len(path))
 
     print("====== Best case: a = {}, b = {}, c = {}: finish in {}".format(a, b, c, minTime))
 
+def testMonteCarlo(levels_array):
+    lev = int(input("Nhap level can test: "))
+    startRnd = int(input("Nhap gia tri bat dau cua so lan random: "))
+    endRnd = int(input("Nhap gia tri ket thuc cua so lan random: "))
+    step = int(input("Nhap buoc nhay cua gia tri: "))
+    minTime = 99999
+    bestRand = 0
+    for i in range(startRnd, endRnd + 1, step):
+        
+        startTime = time.time()
+        path, nNode = monteSearch(levels_array[lev-1].state, i)
+        endTime = time.time()
+
+        data = path[len(path) - 1].data
+        
+
+        success = str(levels_array[lev-1].state.board[data[1]][data[0]]
+                    == 4 and levels_array[lev-1].state.board[data[3]][data[2]] == 4)
+        if success == "True" and endTime - startTime < minTime:
+            minTime = endTime - startTime
+            bestRand = i
+
+        print("case i = {}: ".format(i) + success + ": " + str(round(endTime - startTime, 4)) + "s")
+        print("so node da tim kiem: ", nNode, ", path length: ", len(path))
+
+    print("====== Best case: {} random: finish in {}".format(bestRand, minTime))
 
 
 def main():
@@ -306,7 +344,7 @@ def main():
     algorithm = "BFS"
     method_choice = int(
         input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3): "))
-    is_test = int(input("Test hay xem UI?: (Xem UI: 0, Test: 1, ): "))
+    is_test = int(input("Test hay xem UI?: (Xem UI: 0, Test: 1): "))
     if is_test:
         test(levels_array, method_choice)  #
         return
@@ -322,7 +360,7 @@ def main():
         path = AStarSearch(levels_array[level_choice - 1].state)
         algorithm = "A* Search"
     elif method_choice == 3:
-        path = monteSearch(levels_array[level_choice - 1].state, 10)
+        path = monteSearch(levels_array[level_choice - 1].state)
         algorithm = "Monte Carlo Tree Search"
 
     pygame.init()

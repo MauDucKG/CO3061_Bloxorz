@@ -13,14 +13,15 @@ class AStarNode:
     def __eq__(self, anode) -> bool:
         return self.node == anode.node and self.f == anode.f and self.h == anode.h
 
-def AStarSearch(envir: State, a = 1, b = 1, c = 1):
+def AStarSearch(envir: State, a = 1, b = 2, c = 4):
     openlis = [AStarNode(envir.start, 0, sys.maxsize)]
     closelis = []
-    minNode = None
+    nNode = 0
 
     while openlis != []:
 
         # find best candidate node
+        nNode += 1
         curNode = openlis[0]
 
         for node in openlis[1:]:
@@ -79,4 +80,4 @@ def AStarSearch(envir: State, a = 1, b = 1, c = 1):
     # And print them out
     # for p in path:
     #     print(p.action)
-    return path
+    return path, nNode, len(openlis) + len(closelis)

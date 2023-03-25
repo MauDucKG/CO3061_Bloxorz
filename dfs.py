@@ -19,8 +19,9 @@ from ultis import *
 def dfs(state):
     current_state = Node
     start = time.time()
+    nNode = 0
     while len(state.states) != 0:
-        
+        nNode += 1 # tinh tong so node phai tim kiem
         current_state = state.states.pop(0)
         state.set_player_position(current_state)
         if state.check_goal():
@@ -33,4 +34,4 @@ def dfs(state):
         path.insert(0, pointer)
         pointer = pointer.prev_node
     
-    return path
+    return path, nNode, len(state.visited) + len(state.states)

@@ -685,7 +685,7 @@ class State:
         else:
             return (node[0]%3, node[1]%3)
 
-    def heuri(self, node: Node, a = 1, b = 1, c = 1):
+    def heuri(self, node: Node, a = 1, b = 2, c = 4):
 
         changeMap = 0
         for val in node.xo_objects_states.values():
@@ -699,7 +699,7 @@ class State:
         else: 
             dis = self.manhattanDis((node.data[0], node.data[1]), self.goal)
 
-        return dis + 2*msdis + 3*changeMap
+        return a*dis + b*msdis + c*changeMap
 
     
 

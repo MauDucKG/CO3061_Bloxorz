@@ -229,12 +229,20 @@ def test(levels_array, method_choice):
         start = time.time()
         if method_choice == 1:
             path = dfs(level.state)
+            memory = memory_usage(level.state)
+            print("Memory usage:", memory, "B")
         elif method_choice == 0:
             path = bfs(level.state)
+            memory = memory_usage(level.state)
+            print("Memory usage:", memory, "B")
         elif method_choice == 2:
             path = AStarSearch(level.state)
+            memory = memory_usage(level.state)
+            print("Memory usage:", memory, "B")
         elif method_choice == 3:
             path = mcts(level.state)
+            memory = memory_usage(level.state)
+            print("Memory usage:", memory, "B")
 
         end = time.time()
 
@@ -246,20 +254,28 @@ def test(levels_array, method_choice):
         if success == "True":
             i += 1
 
-        print("Level " + str_level + ": " + success +
+        print("Level " + str_level + ": " + str(len(path)) + " steps. "  + success +
               ": " + str(round(end - start, 4)) + "s")
     print("So level success: " + str(i))
     print("Tong so level: " + str(len(levels_array)))
     input("Press any key to exit.")
     return
 
+def memory_usage(state):
+    memory = 0
+    for node in state.states:
+        # Tính kích thước của một đối tượng Node
+        size = sys.getsizeof(node)
+        # Cộng dồn kích thước vào biến memory
+        memory += size
+    return memory
 
 def main():
     levels_array = init_levels()
     algorithm = "BFS"
     method_choice = int(
         input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3): "))
-    is_test = int(input("Test hay xem UI?: (Test: 1, xem UI: 0): "))
+    is_test = int(input("Test hay xem UI?: (Xem UI: 0, Test: 1, ): "))
     if is_test:
         test(levels_array, method_choice)  #
         return

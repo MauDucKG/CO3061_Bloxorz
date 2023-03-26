@@ -75,11 +75,12 @@ def monteCarlo(envir: State, node: Node, f, visited, n = 5) -> MCTSnode:
         #nextNode = 
     rnode.h = sumHeuri/n
     rnode.length = sumStep/n
+    #print("monte at node: ", node, " is ", rnode.h, " and length: ", rnode.length)
     return rnode
 
 
 def monteSearch(envir: State, n = 5):
-    openlis = [MCTSnode(envir.start, sys.maxsize)]
+    openlis = [MCTSnode(envir.start, 0, (0, 0))]
     closelis = []
     nNode = 0
 
@@ -92,7 +93,7 @@ def monteSearch(envir: State, n = 5):
         for node in openlis[1:]:
             if node < curNode:
                 curNode = node
-        
+        #print("min node is ", curNode.node, " with f = {}, h = {}, length = {}".format(curNode.f, curNode.h, curNode.length))
 
         # add current node to closelis, and remove from openlis
         #print(str(curNode.node))

@@ -17,7 +17,7 @@ class MCTSnode:
         return self.node == anode.node and self.f == anode.f and self.h == anode.h and self.length == anode.length
     
 # monte carlo function
-def playRandom(envir: State, mnode: MCTSnode, visited, maxstep = 10):
+def playRandom(envir: State, mnode: MCTSnode, visited, maxstep = 5):
     curNode = mnode
     closelis = []
     step = 0
@@ -142,4 +142,8 @@ def monteSearch(envir: State, n = 5):
         path.insert(0, pointer)
         pointer = pointer.prev_node
 
-    return path, nNode, len(openlis) + len(closelis)
+    mem = 0
+    if openlis != []: mem += len(openlis)*sys.getsizeof(openlis[0])
+    if closelis != []: mem += len(closelis)*sys.getsizeof(closelis[0])
+
+    return path, nNode, mem

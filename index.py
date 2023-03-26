@@ -274,7 +274,7 @@ def test(levels_array, method_choice):
                 i += 1
 
             print("Level " + str_level + ": " + success + ", path length: ", len(path),
-                  ", So node da tim kiem: ", nNode, ", Time: ", round(end - start, 4), "s, Memory Usage: ", mem)
+                  ", So node da tim kiem: ", nNode, ", Time: ", round(end - start, 4), "s, Memory Usage: ", mem, "B")
         print("So level success: " + str(i))
         print("Tong so level: " + str(len(levels_array)))
         input("Press enter to exit.")
@@ -302,7 +302,7 @@ def testAStarSearch(levels_array):
         for j in range(start, end + 1, step):
             for k in range(start, end + 1, step):
                 startTime = time.time()
-                path, nNode = AStarSearch(levels_array[lev-1].state, i, j, k)
+                path, nNode, mem = AStarSearch(levels_array[lev-1].state, i, j, k)
                 endTime = time.time()
 
                 data = path[len(path) - 1].data
@@ -332,7 +332,7 @@ def testMonteCarlo(levels_array):
     for i in range(startRnd, endRnd + 1, step):
 
         startTime = time.time()
-        path, nNode = monteSearch(levels_array[lev-1].state, i)
+        path, nNode, mem = monteSearch(levels_array[lev-1].state, i)
         endTime = time.time()
 
         data = path[len(path) - 1].data

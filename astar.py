@@ -80,4 +80,7 @@ def AStarSearch(envir: State, a = 1, b = 2, c = 4):
     # And print them out
     # for p in path:
     #     print(p.action)
-    return path, nNode, len(openlis) + len(closelis)
+    mem = 0
+    if openlis != []: mem += len(openlis)*sys.getsizeof(openlis[0])
+    if closelis != []: mem += len(closelis)*sys.getsizeof(closelis[0])
+    return path, nNode, mem

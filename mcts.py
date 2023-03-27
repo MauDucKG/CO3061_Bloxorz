@@ -117,7 +117,7 @@ class MCTSnode:
         self.backpropagate(child.value, 0)
 
 
-def monteTreeSearch(envir: State, exploration_value = 2, maxstep = 20, time_limit = 60):
+def monteTreeSearch(envir: State, exploration_value = 2, maxstep = 20, time_limit = 300):
     root = MCTSnode(envir.start)
     nNode = 0
     curNode = root

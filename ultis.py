@@ -462,6 +462,8 @@ class State:
         self.goal = (gx, gy)
 
     def next_position(self, prev_node: Node = None):
+        if prev_node != self.curNode:
+            raise Exception("chua set position")
         prev_node = self.curNode # i just want to keep the interface, sory :(
         #print(self.x0, self.y0, self.x1, self.y1)
         rv = []
@@ -500,7 +502,7 @@ class State:
                 validNode.append(pos)
         return validNode
 
-    def add_move(self, rv, data, prev_node):
+    def add_move(self, rv, data, prev_node: Node):
         
         xo_objects_states = dict(prev_node.xo_objects_states)
         is_splitted = prev_node.is_splitted
@@ -526,12 +528,13 @@ class State:
                                 3]):
                     for m in xo_object.managed_position:
                         if m.type == ManagedPosition.BOTH:
-                            xo_objects_states[(m.x, m.y)] = not xo_objects_states[(m.x, m.y)]
+                            if not (prev_node.data[0] == xo_object.position[0] and prev_node.data[1] == xo_object.position[1]) or (
+                            prev_node.data[2] == xo_object.position[0] and prev_node.data[3] == xo_object.position[1]):
+                                xo_objects_states[(m.x, m.y)] = not xo_objects_states[(m.x, m.y)]
                         elif m.type == ManagedPosition.ONLY_ENABLE:
                             xo_objects_states[(m.x, m.y)] = True
                         elif m.type == ManagedPosition.ONLY_DISABLE:
                             xo_objects_states[(m.x, m.y)] = False
-        #print("|   xo object states after: ", xo_objects_states)
         
         #print(data)
         return Node(data, prev_node, xo_objects_states, is_splitted)
@@ -566,6 +569,8 @@ class State:
                 
                 if (p == (node.data[0], node.data[1]) or p == (node.data[2], node.data[3])):
                     return False
+
+        
 
         return True
 

@@ -6,6 +6,7 @@ from ultis import *
 from dfs import dfs
 from bfs import bfs
 from mcts import *
+from montebfs import *
 from astar import AStarSearch
 
 import time
@@ -234,7 +235,9 @@ def test(levels_array, method_choice):
         elif method_choice == 2:
             testAStarSearch(levels_array)
         elif method_choice == 3:
-            testMonteCarlo(levels_array)
+            testMCTS(levels_array)
+        elif method_choice == 4:
+            testMCBFSS(levels_array)
     else:
         i = 0
         for level in levels_array:
@@ -259,9 +262,11 @@ def test(levels_array, method_choice):
                 # memory = memory_usage(level.state)
                 # print("Memory usage:", memory, "B")
             elif method_choice == 3:
-                path, nNode, mem = monteSearch(level.state)
+                path, nNode, mem = monteTreeSearch(level.state)
                 # memory = memory_usage(level.state)
                 # print("Memory usage:", memory, "B")
+            elif method_choice == 4:
+                path, nNode, mem = monteBestFirstSearch(level.state)
 
             end = time.time()
 
@@ -322,17 +327,17 @@ def testAStarSearch(levels_array):
         a, b, c, minTime))
 
 
-def testMonteCarlo(levels_array):
+def testMCTS(levels_array):
     lev = int(input("Nhap level can test: "))
-    startRnd = int(input("Nhap gia tri bat dau cua so lan random: "))
-    endRnd = int(input("Nhap gia tri ket thuc cua so lan random: "))
+    startRnd = int(input("Nhap gia tri bat dau cua do dai 1 lan mo phong: "))
+    endRnd = int(input("Nhap gia tri ket thuc cua do dai 1 lan mo phong: "))
     step = int(input("Nhap buoc nhay cua gia tri: "))
     minTime = 99999
     bestRand = 0
     for i in range(startRnd, endRnd + 1, step):
 
         startTime = time.time()
-        path, nNode, mem = monteSearch(levels_array[lev-1].state, i)
+        path, nNode, mem = monteTreeSearch(levels_array[lev-1].state, i)
         endTime = time.time()
 
         data = path[len(path) - 1].data
@@ -349,18 +354,47 @@ def testMonteCarlo(levels_array):
 
     print("====== Best case: {} random: finish in {}".format(bestRand, minTime))
 
+def testMCBFSS(levels_array):
+    lev = int(input("Nhap level can test: "))
+    startRnd = int(input("Nhap gia tri bat dau cua so luot random: "))
+    endRnd = int(input("Nhap gia tri ket thuc cua so luot random: "))
+    step = int(input("Nhap buoc nhay cua gia tri: "))
+    minTime = 99999
+    bestRand = 0
+    for i in range(startRnd, endRnd + 1, step):
+
+        startTime = time.time()
+        path, nNode, mem = monteTreeSearch(levels_array[lev-1].state, i)
+        endTime = time.time()
+
+        data = path[len(path) - 1].data
+
+        success = str(levels_array[lev-1].state.board[data[1]][data[0]]
+                      == 4 and levels_array[lev-1].state.board[data[3]][data[2]] == 4)
+        if success == "True" and endTime - startTime < minTime:
+            minTime = endTime - startTime
+            bestRand = i
+
+        print("case i = {}: ".format(i) + success + ": " +
+              str(round(endTime - startTime, 4)) + "s")
+        print("so node da tim kiem: ", nNode, ", path length: ", len(path))
+
+    print("====== Best case: {} random: finish in {}".format(bestRand, minTime))
 
 def main():
     levels_array = init_levels()
     algorithm = "BFS"
     method_choice = int(
-        input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3): "))
+        input("Nhap method (BFS: 0, DFS: 1, A*: 2, MCTS: 3, Best First Search + Monte heuristic: 4): "))
     is_test = int(input("Test hay xem UI?: (Xem UI: 0, Test: 1): "))
     if is_test:
         test(levels_array, method_choice)  #
         return
     level_choice = int(input("Nhap level: "))
     done = False
+
+    start = time.time()
+
     if method_choice == 0:
         path, nNode, mem = bfs(levels_array[level_choice - 1].state)
         algorithm = "Breadth-First Search"
@@ -371,8 +405,25 @@ def main():
         path, nNode, mem = AStarSearch(levels_array[level_choice - 1].state)
         algorithm = "A* Search"
     elif method_choice == 3:
-        path, nNode, mem = monteSearch(levels_array[level_choice - 1].state)
+        path, nNode, mem = monteTreeSearch(levels_array[level_choice - 1].state)
         algorithm = "Monte Carlo Tree Search"
+    elif method_choice == 4:
+        path, nNode, mem = monteBestFirstSearch(levels_array[level_choice - 1].state)
+        algorithm = "Best First Search with Monte Carlo heuristic"
+
+    end = time.time()
+
+    data = path[len(path) - 1].data
+
+    str_level = str(level_choice)
+    success = str(levels_array[level_choice - 1].state.board[data[1]][data[0]]
+                    == 4 and levels_array[level_choice - 1].state.board[data[3]][data[2]] == 4)
+
+    print("Level " + str_level + ": " + success + ", path length: ", len(path),
+            ", So node da tim kiem: ", nNode, ", Time: ", round(end - start, 4), "s, Memory Usage: ", mem, "B")
+        
+    #for node in path:
+        #print(node.data, node.xo_objects_states)
 
     pygame.init()
     pygame.display.set_caption("Bloxorz")

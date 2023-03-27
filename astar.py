@@ -1,5 +1,5 @@
 from ultis import *
-import sys
+import sys, time
 
 class AStarNode:
     def __init__(self, node: Node, f, h):
@@ -13,10 +13,13 @@ class AStarNode:
     def __eq__(self, anode) -> bool:
         return self.node == anode.node and self.f == anode.f and self.h == anode.h
 
-def AStarSearch(envir: State, a = 1, b = 2, c = 4):
+def AStarSearch(envir: State, a = 1, b = 2, c = 4, time_limit = 60):
     openlis = [AStarNode(envir.start, 0, sys.maxsize)]
     closelis = []
     nNode = 0
+
+    if time_limit is not None:
+        end_time = time.time() + time_limit
 
     while openlis != []:
 
@@ -53,21 +56,18 @@ def AStarSearch(envir: State, a = 1, b = 2, c = 4):
                     if anode.node == node:
                         flag = True
                         if curNode.f + 1 < anode.f:
-                            anode.f = curNode.f + 1
+                            openlis.remove(anode)
+                            openlis.append(AStarNode(node, curNode.f + 1, envir.heuri(node, a, b, c)))
                         break
 
                 if not flag:
                     #temp.append(AStarNode(node, curNode.f + 1, envir.heuri(node)))
                     openlis.append(AStarNode(node, curNode.f + 1, envir.heuri(node, a, b, c)))
                     #bisect.insort_left(openlis, AStarNode(node, curNode.f + 1, envir.heuri(node)))
+        
+        if time_limit is not None and time.time() > end_time:
+            break
                     
-
-        #print("add to open list: ")
-        #for anode in temp:
-            #print("|   ", anode.node)
-        #print("open list: ")
-        #for anode in openlis:
-            #print("|   ", anode.node)
                 
 
     # return path

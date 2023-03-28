@@ -14,6 +14,7 @@ class MCTSnode:
             self.g = parent.g + 1
         self.visits = 0
         self.value = 0.0
+        self.end = False
     
     def expand(self, envir: State, root):
         # Tạo ra các nút con để mở rộng cây tìm kiếm.
@@ -36,7 +37,7 @@ class MCTSnode:
         # Kiểm tra xem nút hiện tại có phải là nút lá hay không.
         return not self.children
     
-    def rollout(self, envir: State, root, maxstep = 100):
+    def rollout(self, envir: State, root, maxstep = 30):
         if not self.is_leaf():
             raise ValueError("Node is not a leaf.")
 
@@ -76,7 +77,9 @@ class MCTSnode:
     
     def uct_value(self, total_visits, exploration_value = 2):
         # Tính giá trị UCT (Upper Confidence Bound for Trees) cho nút hiện tại.
-        if self.visits == 0:
+        if self.end:
+            return - float("inf")
+        elif self.visits == 0:
             return float("inf")
         return self.value / self.visits + exploration_value * math.sqrt(math.log(total_visits) / self.visits)
 
@@ -116,8 +119,26 @@ class MCTSnode:
         self.children.remove(child)
         self.backpropagate(child.value, 0)
 
+    def checking_end(self):
+        if self.end == True:
+            return True
+        
+        for child in self.children:
+            if not child.end:
+                self.end = False
+                return False
 
-def monteTreeSearch(envir: State, exploration_value = 2, maxstep = 20, time_limit = 300):
+        if self.visits < 2 and self.children == []:
+            self.end = False
+            return False
+        else:
+            self.end = True
+            if self.parent:
+                self.parent.checking_end()
+            return True
+
+
+def monteTreeSearch(envir: State, exploration_value = 2, maxstep = 30, time_limit = 60):
     root = MCTSnode(envir.start)
     nNode = 0
     curNode = root
@@ -147,7 +168,8 @@ def monteTreeSearch(envir: State, exploration_value = 2, maxstep = 20, time_limi
             #for child in curNode.children:
                 #print("|   leaf: ", child.node)
             if not curNode.children:
-                curNode.backpropagate(-10)
+                curNode.backpropagate(0)
+                curNode.checking_end()
             else:
                 curNode = random.choice(curNode.children)
                 rollout_value = curNode.rollout(envir, root)

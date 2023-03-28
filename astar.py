@@ -13,7 +13,7 @@ class AStarNode:
     def __eq__(self, anode) -> bool:
         return self.node == anode.node and self.f == anode.f and self.h == anode.h
 
-def AStarSearch(envir: State, a = 1, b = 2, c = 4, time_limit = 60):
+def AStarSearch(envir: State, a = 4, b = 4, c = 20, time_limit = 60):
     openlis = [AStarNode(envir.start, 0, sys.maxsize)]
     closelis = []
     nNode = 0

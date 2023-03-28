@@ -33,4 +33,7 @@ def bfs(state):
         path.insert(0, pointer)
         pointer = pointer.prev_node
     
-    return path, nNode, len(state.visited) + len(state.states)
+    mem = 0
+    if state.visited != []: mem += len(state.visited)*sys.getsizeof(state.visited[0])
+    if state.states != []: mem += len(state.states)*sys.getsizeof(state.states[0])
+    return path, nNode, mem
